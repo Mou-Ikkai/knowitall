@@ -1,3 +1,5 @@
+'use strict';
+
 /*
  *  File: plugin.js
  *  Author: Aspen
@@ -36,14 +38,14 @@ const {
 	}
 } = require('powercord/webpack');
 
-export default class KnowItAll extends Plugin {
+class KnowItAll extends Plugin {
 	async startPlugin() {
 		await this.load_wasm_provider();
 		await this.import_functions();
 	}
 
 	async load_wasm_provider() {
-		this.wasm = await import('../provider/Cargo.toml');
+		this.wasm = await Promise.resolve().then(function () { return require('./Cargo-3a03f3a8.js'); });
 		this.Provider = await this.wasm.default();
 	}
 
@@ -64,3 +66,5 @@ export default class KnowItAll extends Plugin {
 
 	}
 }
+
+module.exports = KnowItAll;

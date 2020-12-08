@@ -2,12 +2,14 @@
 	"name": "knowitall",
 	"version": "1.0.0",
 	"description": "",
-	"main": "src/plugin.js",
+	"main": "_rolled/plugin.js",
 	"repository": "https://github.com/aspenluxxxy/Powercrypt",
 	"author": "aspen",
 	"license": "Zlib",
 	"private": true,
 	"scripts": {
+		"dev": "wasm-pack build --no-typescript --dev provider && rollup -c",
+		"build": "wasm-pack build --no-typescript --release provider && rollup -c",
 		"postinstall": "husky install"
 	},
 	"husky": {
@@ -20,7 +22,7 @@
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^11.0.0",
-		"@rollup/plugin-wasm": "^5.1.1",
+		"@wasm-tool/rollup-plugin-rust": "^1.0.5",
 		"commitlint-config-gitmoji": "^1.0.1",
 		"eslint": "^7.15.0",
 		"eslint-plugin-jsx-a11y": "^6.4.1",
