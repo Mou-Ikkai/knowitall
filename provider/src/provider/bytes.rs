@@ -31,9 +31,11 @@ use crate::{
 pub struct ByteProvider;
 
 impl Provider for ByteProvider {
-	const NAME: &'static str = "Byte Units";
+	fn name(&self) -> &'static str {
+		"Bytes"
+	}
 
-	fn parse_message(src: &str) -> Vec<InfoSegment> {
+	fn parse_message(&self, src: &str) -> Vec<InfoSegment> {
 		BYTE_SIZE
 			.captures_iter(src)
 			.filter_map(|capture| -> Option<InfoSegment> {

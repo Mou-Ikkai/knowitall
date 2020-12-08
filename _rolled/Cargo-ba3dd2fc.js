@@ -28,33 +28,6 @@
 
 let wasm;
 
-const heap = new Array(32).fill(undefined);
-
-heap.push(undefined, null, true, false);
-
-function getObject(idx) {
-	return heap[idx];
-}
-
-let heap_next = heap.length;
-
-function dropObject(idx) {
-	if (idx < 36) return;
-	heap[idx] = heap_next;
-	heap_next = idx;
-}
-
-function takeObject(idx) {
-	const ret = getObject(idx);
-	dropObject(idx);
-	return ret;
-}
-/**
- */
-function wasm_main() {
-	wasm.wasm_main();
-}
-
 let cachedTextDecoder = new TextDecoder('utf-8', {
 	ignoreBOM: true,
 	fatal: true,
@@ -77,13 +50,42 @@ function getStringFromWasm0(ptr, len) {
 	return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
 }
 
+const heap = new Array(32).fill(undefined);
+
+heap.push(undefined, null, true, false);
+
+let heap_next = heap.length;
+
 function addHeapObject(obj) {
 	if (heap_next === heap.length) heap.push(heap.length + 1);
 	const idx = heap_next;
 	heap_next = heap[idx];
 
+	if (typeof heap_next !== 'number') throw new Error('corrupt heap');
+
 	heap[idx] = obj;
 	return idx;
+}
+
+function getObject(idx) {
+	return heap[idx];
+}
+
+function dropObject(idx) {
+	if (idx < 36) return;
+	heap[idx] = heap_next;
+	heap_next = idx;
+}
+
+function takeObject(idx) {
+	const ret = getObject(idx);
+	dropObject(idx);
+	return ret;
+}
+/**
+ */
+function wasm_main() {
+	wasm.wasm_main();
 }
 
 let WASM_VECTOR_LEN = 0;
@@ -105,6 +107,8 @@ const encodeString =
 		  };
 
 function passStringToWasm0(arg, malloc, realloc) {
+	if (typeof arg !== 'string') throw new Error('expected a string argument');
+
 	if (realloc === undefined) {
 		const buf = cachedTextEncoder.encode(arg);
 		const ptr = malloc(buf.length);
@@ -135,12 +139,49 @@ function passStringToWasm0(arg, malloc, realloc) {
 		ptr = realloc(ptr, len, (len = offset + arg.length * 3));
 		const view = getUint8Memory0().subarray(ptr + offset, ptr + len);
 		const ret = encodeString(arg, view);
-
+		if (ret.read !== arg.length) throw new Error('failed to pass whole string');
 		offset += ret.written;
 	}
 
 	WASM_VECTOR_LEN = offset;
 	return ptr;
+}
+/**
+ * @param {string} msg
+ * @returns {any}
+ */
+function parse_message(msg) {
+	var ptr0 = passStringToWasm0(
+		msg,
+		wasm.__wbindgen_malloc,
+		wasm.__wbindgen_realloc
+	);
+	var len0 = WASM_VECTOR_LEN;
+	var ret = wasm.parse_message(ptr0, len0);
+	return takeObject(ret);
+}
+
+function logError(f) {
+	return function () {
+		try {
+			return f.apply(this, arguments);
+		} catch (e) {
+			let error = (function () {
+				try {
+					return e instanceof Error
+						? `${e.message}\n\nStack:\n${e.stack}`
+						: e.toString();
+				} catch (_) {
+					return '<failed to stringify thrown value>';
+				}
+			})();
+			console.error(
+				'wasm-bindgen: imported JS function that was not marked as `catch` threw an error:',
+				error
+			);
+			throw e;
+		}
+	};
 }
 
 let cachegetInt32Memory0 = null;
@@ -189,16 +230,27 @@ async function init(input) {
 		input = (typeof document === 'undefined'
 			? new (require('u' + 'rl').URL)('file:' + __filename).href
 			: (document.currentScript && document.currentScript.src) ||
-			  new URL('Cargo-3a03f3a8.js', document.baseURI).href
+			  new URL('Cargo-ba3dd2fc.js', document.baseURI).href
 		).replace(/\.js$/, '_bg.wasm');
 	}
 	const imports = {};
 	imports.wbg = {};
-	imports.wbg.__wbg_new_59cb74e423758ede = function () {
-		var ret = new Error();
+	imports.wbg.__wbindgen_json_parse = function (arg0, arg1) {
+		var ret = JSON.parse(getStringFromWasm0(arg0, arg1));
 		return addHeapObject(ret);
 	};
-	imports.wbg.__wbg_stack_558ba5917b466edd = function (arg0, arg1) {
+	imports.wbg.__wbg_error_4bb6c2a97407129a = logError(function (arg0, arg1) {
+		try {
+			console.error(getStringFromWasm0(arg0, arg1));
+		} finally {
+			wasm.__wbindgen_free(arg0, arg1);
+		}
+	});
+	imports.wbg.__wbg_new_59cb74e423758ede = logError(function () {
+		var ret = new Error();
+		return addHeapObject(ret);
+	});
+	imports.wbg.__wbg_stack_558ba5917b466edd = logError(function (arg0, arg1) {
 		var ret = getObject(arg1).stack;
 		var ptr0 = passStringToWasm0(
 			ret,
@@ -208,16 +260,12 @@ async function init(input) {
 		var len0 = WASM_VECTOR_LEN;
 		getInt32Memory0()[arg0 / 4 + 1] = len0;
 		getInt32Memory0()[arg0 / 4 + 0] = ptr0;
-	};
-	imports.wbg.__wbg_error_4bb6c2a97407129a = function (arg0, arg1) {
-		try {
-			console.error(getStringFromWasm0(arg0, arg1));
-		} finally {
-			wasm.__wbindgen_free(arg0, arg1);
-		}
-	};
+	});
 	imports.wbg.__wbindgen_object_drop_ref = function (arg0) {
 		takeObject(arg0);
+	};
+	imports.wbg.__wbindgen_throw = function (arg0, arg1) {
+		throw new Error(getStringFromWasm0(arg0, arg1));
 	};
 
 	if (
@@ -239,6 +287,7 @@ async function init(input) {
 var exports$1 = /*#__PURE__*/ Object.freeze({
 	__proto__: null,
 	wasm_main: wasm_main,
+	parse_message: parse_message,
 	default: init,
 });
 
@@ -257,11 +306,11 @@ function loadFile(url) {
 var Cargo = async () => {
 	await init(
 		loadFile(
-			require('path').join(__dirname, 'assets/knowitall-provider-4e45896f.wasm')
+			require('path').join(__dirname, 'assets/knowitall-provider-ce563ee7.wasm')
 		)
 	);
 	return exports$1;
 };
 
 exports.default = Cargo;
-//# sourceMappingURL=Cargo-3a03f3a8.js.map
+//# sourceMappingURL=Cargo-ba3dd2fc.js.map

@@ -32,9 +32,11 @@ use chrono::NaiveTime;
 pub struct TimeProvider;
 
 impl Provider for TimeProvider {
-	const NAME: &'static str = "Time";
+	fn name(&self) -> &'static str {
+		"Time"
+	}
 
-	fn parse_message(src: &str) -> Vec<InfoSegment> {
+	fn parse_message(&self, src: &str) -> Vec<InfoSegment> {
 		TWELVE_HOUR_TIME
 			.captures_iter(src)
 			.chain(TWENTY_FOUR_HOUR_TIME.captures_iter(src))

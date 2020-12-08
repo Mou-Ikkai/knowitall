@@ -26,9 +26,23 @@
 pub mod patterns;
 pub mod provider;
 
+use provider::{InfoSegment, PROVIDERS};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(start)]
 pub fn wasm_main() {
 	console_error_panic_hook::set_once();
+}
+
+#[wasm_bindgen]
+pub fn parse_message(msg: &str) -> JsValue {
+	let mut segments: Vec<InfoSegment> = Vec::new();
+	PROVIDERS
+		.iter()
+		.flat_map(|p| p.parse_message(msg))
+		.for_each(|segment| {
+			segment.insert_if_nonoverlapping(&mut segments);
+		});
+
+	JsValue::from_serde(&segments).unwrap()
 }

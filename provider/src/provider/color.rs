@@ -31,9 +31,11 @@ use crate::{
 pub struct ColorProvider;
 
 impl Provider for ColorProvider {
-	const NAME: &'static str = "RGB Color";
+	fn name(&self) -> &'static str {
+		"RGB Color"
+	}
 
-	fn parse_message(src: &str) -> Vec<InfoSegment> {
+	fn parse_message(&self, src: &str) -> Vec<InfoSegment> {
 		RGB_HEX
 			.captures_iter(src)
 			.filter_map(|capture| -> Option<InfoSegment> {

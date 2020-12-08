@@ -23,23 +23,21 @@
  *
  */
 
-const {
-	Plugin
-} = require('powercord/entities');
+const { Plugin } = require('powercord/entities');
+const { inject, uninject } = require('powercord/injector');
 const {
 	React,
 	Flux,
 	getModule,
 	getModuleByDisplayName,
-	i18n: {
-		Messages
-	}
+	i18n: { Messages },
 } = require('powercord/webpack');
 
 export default class KnowItAll extends Plugin {
 	async startPlugin() {
 		await this.load_wasm_provider();
 		await this.import_functions();
+		await this.inject_hooks();
 	}
 
 	async load_wasm_provider() {
@@ -52,15 +50,72 @@ export default class KnowItAll extends Plugin {
 		this.get_channel = await getModule(['getChannel']);
 	}
 
+	async inject_hooks() {
+		const ChannelMessage = (await getModule(['MESSAGE_ID_PREFIX'])).default;
+		const oType = ChannelMessage.type;
+		inject(
+			'knowitall_ChannelMessage',
+			ChannelMessage,
+			'type',
+			(args, res) => {
+				try {
+					if (
+						typeof res?.props?.childrenMessageContent?.props
+							?.content === 'object'
+					) {
+						res.props.childrenMessageContent.props.content = this.handle_message_content(
+							res.props.childrenMessageContent.props.content
+						);
+					}
+				} catch (e) {
+					this.error(e);
+				}
+				return args, res;
+			}
+		);
+	}
+
 	async import(filter, functionName = filter) {
 		if (typeof filter === 'string') {
 			filter = [filter];
 		}
 
 		return (await getModule(filter))[functionName];
-	};
+	}
+
+	handle_message_content(content) {
+		try {
+			if (typeof content === 'string') {
+				content = [content];
+			} else if (typeof content === 'function') {
+				// da fuck?
+				return content;
+			}
+			return content.map((element) => {
+				if (
+					typeof element === 'object' &&
+					element?.props?.children?.length > 0
+				) {
+					element.props.children = this.handle_message_content(
+						element.props.children
+					);
+					return element;
+				} else if (typeof element === 'string') {
+					let x = this.Provider.parse_message(element);
+					if (x && x.length > 0) {
+					}
+					return element;
+				} else {
+					return element;
+				}
+			});
+		} catch (e) {
+			this.error(e);
+		}
+		return content;
+	}
 
 	pluginWillUnload() {
-
+		uninject('knowitall_ChannelMessage');
 	}
 }

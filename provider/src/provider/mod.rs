@@ -28,7 +28,16 @@ pub mod color;
 pub mod time;
 
 use chrono::NaiveTime;
+use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
+
+pub static PROVIDERS: Lazy<Vec<Box<dyn Provider>>> = Lazy::new(|| {
+	vec![
+		Box::new(bytes::ByteProvider),
+		Box::new(color::ColorProvider),
+		Box::new(time::TimeProvider),
+	]
+});
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum Tooltip {
@@ -45,13 +54,20 @@ pub struct InfoSegment {
 }
 
 impl InfoSegment {
-	pub fn intersects(&self, offset: usize) -> bool {
-		offset >= self.start && offset <= self.end
+	pub fn intersects(&self, other: &Self) -> bool {
+		other.start >= self.start && other.end <= self.end
+	}
+
+	pub fn insert_if_nonoverlapping(self, list: &mut Vec<Self>) {
+		if list.iter().any(|other| other.intersects(&self)) {
+			std::mem::drop(self)
+		} else {
+			list.push(self);
+		}
 	}
 }
 
-pub trait Provider {
-	const NAME: &'static str;
-
-	fn parse_message(src: &str) -> Vec<InfoSegment>;
+pub trait Provider: Send + Sync {
+	fn name(&self) -> &'static str;
+	fn parse_message(&self, src: &str) -> Vec<InfoSegment>;
 }
