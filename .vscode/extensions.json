@@ -1,0 +1,13 @@
+{
+	"recommendations": [
+		"tamasfe.even-better-toml",
+		"matklad.rust-analyzer",
+		"serayuzgur.crates",
+		"dbaeumer.vscode-eslint",
+		"editorconfig.editorconfig",
+		"angelo-breuer.license-header-manager",
+		"marvin.powercord-snippets",
+		"syler.sass-indented",
+		"mrmlnc.vscode-scss"
+	]
+}

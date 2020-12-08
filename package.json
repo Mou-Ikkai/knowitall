@@ -1,0 +1,15 @@
+{
+	"name": "knowitall",
+	"version": "1.0.0",
+	"description": "",
+	"main": "src/plugin.js",
+	"repository": "https://github.com/aspenluxxxy/Powercrypt",
+	"author": "aspen",
+	"license": "GPL-3.0",
+	"private": false,
+	"devDependencies": {
+		"@rollup/plugin-wasm": "^5.1.1",
+		"eslint": "^7.15.0",
+		"rollup": "^2.34.2"
+	}
+}
