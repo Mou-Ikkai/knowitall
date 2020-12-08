@@ -2,6 +2,8 @@
 
 KnowItAll is a [Powercord](https://powercord.dev) plugin, for effortlessly parsing and displaying data in messages in an easy-to-understand format
 
+The intent is similar to [powercord-message-tooltips](https://github.com/lorencerri/powercord-message-tooltips), however that is not being actively developed any more, and the author said it was fine if I made something similar.
+
 ## Supported Data Types
 
 
