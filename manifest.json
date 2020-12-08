@@ -2,6 +2,6 @@
 	"name": "KnowItAll",
 	"description": "A plugin to effortlessly parse data from a message",
 	"author": "aspen#2481",
-	"license": "GPL-3.0",
+	"license": "Zlib",
 	"version": "1.0.0"
 }

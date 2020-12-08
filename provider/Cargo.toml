@@ -4,7 +4,7 @@ description = "Data provider for the KnowItAll Powercord plugin"
 version = "0.1.0"
 authors = ["aspen <aspenuwu@protonmail.com>"]
 edition = "2018"
-license = "GPL-3.0"
+license = "Zlib"
 publish = false
 
 [lib]

@@ -5,7 +5,7 @@
 	"main": "src/plugin.js",
 	"repository": "https://github.com/aspenluxxxy/Powercrypt",
 	"author": "aspen",
-	"license": "GPL-3.0",
+	"license": "Zlib",
 	"private": false,
 	"devDependencies": {
 		"@rollup/plugin-wasm": "^5.1.1",
