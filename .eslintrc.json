@@ -6,8 +6,11 @@
 	},
 	"extends": [
 		"eslint:recommended",
+		"plugin:node/recommended",
+		"plugin:react/recommended",
 		"plugin:import/errors",
-		"plugin:import/warnings"
+		"plugin:import/warnings",
+		"plugin:jsx-a11y/recommended"
 	],
 	"settings": {
 		"react": {
@@ -21,6 +24,7 @@
 		"ecmaVersion": 2020,
 		"sourceType": "module"
 	},
+	"plugins": ["react", "jsx-a11y"],
 	"rules": {
 		"indent": [
 			"error",
@@ -41,9 +45,8 @@
 			"error",
 			"always"
 		],
-		"no-unused-vars": "off",
-		"no-undef": "off",
-		"no-empty": "off",
-		"no-unsafe-finally": "off"
+		"no-unused-vars": "warn",
+		"no-undef": "warn",
+		"no-empty": "warn"
 	}
 }
