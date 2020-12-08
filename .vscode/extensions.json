@@ -8,6 +8,7 @@
 		"angelo-breuer.license-header-manager",
 		"marvin.powercord-snippets",
 		"syler.sass-indented",
-		"mrmlnc.vscode-scss"
+		"mrmlnc.vscode-scss",
+		"esbenp.prettier-vscode"
 	]
 }
