@@ -210,11 +210,24 @@ class Inline extends webpack.React.Component {
 class KnowItAll extends entities.Plugin {
 	async startPlugin() {
 		if (
-			typeof WebAssembly !== 'object' ||
 			typeof window.WebAssembly !== 'object' ||
+			typeof WebAssembly !== 'object' ||
 			typeof WebAssembly.Instance !== 'function' ||
+			typeof WebAssembly.Memory !== 'function' ||
 			typeof WebAssembly.instantiate !== 'function' ||
-			typeof WebAssembly.instantiateStreaming !== 'function'
+			typeof WebAssembly.instantiateStreaming !== 'function' ||
+			new WebAssembly.Memory({
+				initial: 0,
+				maximum: 1,
+			}).toString() !== '[object WebAssembly.Memory]' ||
+			new WebAssembly.Memory({
+				initial: 0,
+				maximum: 1,
+			}).buffer.toString() !== '[object ArrayBuffer]' ||
+			new WebAssembly.Memory({
+				initial: 0,
+				maximum: 1,
+			}).buffer.byteLength !== 0
 		) {
 			powercord.api.notices.sendToast('knital-someone-fucked-up-wasm', {
 				header: 'KnowItAll',
