@@ -280,7 +280,7 @@ function loadFile(url) {
 var Cargo = async () => {
 	await init(
 		loadFile(
-			require('path').join(__dirname, 'assets/knowitall-provider-3c2e3216.wasm')
+			require('path').join(__dirname, 'assets/knowitall-provider-9f3b711e.wasm')
 		)
 	);
 	return exports$1;
