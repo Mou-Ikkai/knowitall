@@ -23,18 +23,15 @@
  *
  */
 
-const { Plugin } = require('powercord/entities');
-const { inject, uninject } = require('powercord/injector');
-const {
-	React,
-	Flux,
-	getModule,
-	getModuleByDisplayName,
-	i18n: { Messages },
-} = require('powercord/webpack');
+import { Plugin } from 'powercord/entities';
+import { inject, uninject } from 'powercord/injector';
+import { React, Flux, getModule } from 'powercord/webpack';
+
+import Inline from './components/Inline';
 
 export default class KnowItAll extends Plugin {
 	async startPlugin() {
+		this.loadStylesheet('scss/tooltip.scss');
 		await this.load_wasm_provider();
 		await this.import_functions();
 		await this.inject_hooks();
@@ -91,7 +88,7 @@ export default class KnowItAll extends Plugin {
 				// da fuck?
 				return content;
 			}
-			return content.map((element) => {
+			return content.flatMap((element) => {
 				if (
 					typeof element === 'object' &&
 					element?.props?.children?.length > 0
@@ -101,8 +98,32 @@ export default class KnowItAll extends Plugin {
 					);
 					return element;
 				} else if (typeof element === 'string') {
-					let x = this.Provider.parse_message(element);
-					if (x && x.length > 0) {
+					let segments = this.Provider.parse_message(element);
+					if (segments && segments.length > 0) {
+						let split_segments = [];
+						let cursor = 0;
+						segments.forEach((segment) => {
+							if (segment.start > cursor) {
+								split_segments.push(
+									element.slice(cursor, segment.start)
+								);
+							}
+							let end = segment.end + 1;
+							split_segments.push(
+								React.createElement(Inline, {
+									original_text: element.slice(
+										segment.start,
+										segment.end
+									),
+								})
+							);
+							cursor = end;
+						});
+						let remaining = element.slice(cursor - 1);
+						if (remaining.length > 0) {
+							split_segments.push(remaining);
+						}
+						return split_segments;
 					}
 					return element;
 				} else {

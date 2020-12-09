@@ -48,9 +48,9 @@ pub enum Tooltip {
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct InfoSegment {
-	start: usize,
-	end: usize,
-	info: Tooltip,
+	pub start: usize,
+	pub end: usize,
+	pub info: Tooltip,
 }
 
 impl InfoSegment {

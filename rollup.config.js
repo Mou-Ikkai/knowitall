@@ -23,44 +23,57 @@ the following restrictions:
 3.  This notice may not be removed or altered from any source distribution.
 `;
 
-import rust from '@wasm-tool/rollup-plugin-rust';
+import babel from '@rollup/plugin-babel';
+import del from 'rollup-plugin-delete';
 import license from 'rollup-plugin-license';
 import prettier from 'rollup-plugin-prettier';
-import del from 'rollup-plugin-delete';
+import resolve from '@rollup/plugin-node-resolve';
+import rust from '@wasm-tool/rollup-plugin-rust';
 
 export default {
 	input: 'src/plugin.js',
 	preserveEntrySignatures: 'strict',
+	external: ['powercord/entities', 'powercord/injector', 'powercord/webpack'],
 	output: {
 		dir: '_rolled',
 		format: 'cjs',
 		exports: 'default',
-		sourcemap: true,
 	},
 	plugins: [
 		del({
-			targets: '_rolled/*'
+			targets: '_rolled/*',
+		}),
+		resolve({ extensions: ['.js', '.jsx'] }),
+		babel({
+			configFile: false,
+			exclude: ['node_modules/**'],
+			babelHelpers: 'runtime',
+			extensions: ['.js', '.jsx'],
+			presets: ['@babel/preset-react'],
+			plugins: [['@babel/transform-runtime', { useESModules: true }]],
 		}),
 		license({
-			sourcemap: true,
 			banner: {
 				commentStyle: 'regular',
-				content: LICENSE_TEMPLATE
-			}
+				content: LICENSE_TEMPLATE,
+			},
 		}),
 		prettier({
-			sourcemap: true,
 			singleQuote: true,
 			useTabs: true,
 			semi: true,
-			trailingComma: 'es5'
+			trailingComma: 'es5',
 		}),
 		rust({
 			nodejs: true,
 			watchPatterns: ['provider/src/**'],
 			importHook: function (path) {
-				return 'require(\'path\').join(__dirname, ' + JSON.stringify(path) + ')';
+				return (
+					"require('path').join(__dirname, " +
+					JSON.stringify(path) +
+					')'
+				);
 			},
-		})
+		}),
 	],
 };

@@ -26,6 +26,28 @@
 
 'use strict';
 
+var entities = require('powercord/entities');
+var injector = require('powercord/injector');
+var webpack = require('powercord/webpack');
+
+const { React } = require('powercord/webpack');
+
+const { Tooltip } = require('powercord/components');
+
+class Inline extends React.Component {
+	render() {
+		const { original_text } = this.props;
+		return /*#__PURE__*/ React.createElement(
+			Tooltip,
+			{
+				text: 'test',
+				className: 'knital-tooltip',
+			},
+			original_text
+		);
+	}
+}
+
 /*
  *  File: plugin.js
  *  Author: Aspen
@@ -50,19 +72,9 @@
  *  3.  This notice may not be removed or altered from any source distribution.
  *
  */
-
-const { Plugin } = require('powercord/entities');
-const { inject, uninject } = require('powercord/injector');
-const {
-	React,
-	Flux,
-	getModule,
-	getModuleByDisplayName,
-	i18n: { Messages },
-} = require('powercord/webpack');
-
-class KnowItAll extends Plugin {
+class KnowItAll extends entities.Plugin {
 	async startPlugin() {
+		this.loadStylesheet('scss/tooltip.scss');
 		await this.load_wasm_provider();
 		await this.import_functions();
 		await this.inject_hooks();
@@ -70,33 +82,41 @@ class KnowItAll extends Plugin {
 
 	async load_wasm_provider() {
 		this.wasm = await Promise.resolve().then(function () {
-			return require('./Cargo-ba3dd2fc.js');
+			return require('./Cargo-5dacaa05.js');
 		});
 		this.Provider = await this.wasm.default();
 	}
 
 	async import_functions() {
-		this.get_member = await getModule(['getMember']);
-		this.get_channel = await getModule(['getChannel']);
+		this.get_member = await webpack.getModule(['getMember']);
+		this.get_channel = await webpack.getModule(['getChannel']);
 	}
 
 	async inject_hooks() {
-		const ChannelMessage = (await getModule(['MESSAGE_ID_PREFIX'])).default;
+		const ChannelMessage = (await webpack.getModule(['MESSAGE_ID_PREFIX']))
+			.default;
 		const oType = ChannelMessage.type;
-		inject('knowitall_ChannelMessage', ChannelMessage, 'type', (args, res) => {
-			try {
-				if (
-					typeof res?.props?.childrenMessageContent?.props?.content === 'object'
-				) {
-					res.props.childrenMessageContent.props.content = this.handle_message_content(
-						res.props.childrenMessageContent.props.content
-					);
+		injector.inject(
+			'knowitall_ChannelMessage',
+			ChannelMessage,
+			'type',
+			(args, res) => {
+				try {
+					if (
+						typeof res?.props?.childrenMessageContent?.props?.content ===
+						'object'
+					) {
+						res.props.childrenMessageContent.props.content = this.handle_message_content(
+							res.props.childrenMessageContent.props.content
+						);
+					}
+				} catch (e) {
+					this.error(e);
 				}
-			} catch (e) {
-				this.error(e);
+
+				return res;
 			}
-			return res;
-		});
+		);
 	}
 
 	async import(filter, functionName = filter) {
@@ -104,7 +124,7 @@ class KnowItAll extends Plugin {
 			filter = [filter];
 		}
 
-		return (await getModule(filter))[functionName];
+		return (await webpack.getModule(filter))[functionName];
 	}
 
 	handle_message_content(content) {
@@ -115,7 +135,8 @@ class KnowItAll extends Plugin {
 				// da fuck?
 				return content;
 			}
-			return content.map((element) => {
+
+			return content.flatMap((element) => {
 				if (
 					typeof element === 'object' &&
 					element?.props?.children?.length > 0
@@ -125,9 +146,33 @@ class KnowItAll extends Plugin {
 					);
 					return element;
 				} else if (typeof element === 'string') {
-					let x = this.Provider.parse_message(element);
-					if (x && x.length > 0) {
+					let segments = this.Provider.parse_message(element);
+
+					if (segments && segments.length > 0) {
+						let split_segments = [];
+						let cursor = 0;
+						segments.forEach((segment) => {
+							if (segment.start > cursor) {
+								split_segments.push(element.slice(cursor, segment.start));
+							}
+
+							let end = segment.end + 1;
+							split_segments.push(
+								webpack.React.createElement(Inline, {
+									original_text: element.slice(segment.start, segment.end),
+								})
+							);
+							cursor = end;
+						});
+						let remaining = element.slice(cursor - 1);
+
+						if (remaining.length > 0) {
+							split_segments.push(remaining);
+						}
+
+						return split_segments;
 					}
+
 					return element;
 				} else {
 					return element;
@@ -136,13 +181,13 @@ class KnowItAll extends Plugin {
 		} catch (e) {
 			this.error(e);
 		}
+
 		return content;
 	}
 
 	pluginWillUnload() {
-		uninject('knowitall_ChannelMessage');
+		injector.uninject('knowitall_ChannelMessage');
 	}
 }
 
 module.exports = KnowItAll;
-//# sourceMappingURL=plugin.js.map

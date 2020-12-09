@@ -44,5 +44,7 @@ pub fn parse_message(msg: &str) -> JsValue {
 			segment.insert_if_nonoverlapping(&mut segments);
 		});
 
+	segments.sort_by(|a, b| a.start.cmp(&b.start));
+
 	JsValue::from_serde(&segments).unwrap()
 }
