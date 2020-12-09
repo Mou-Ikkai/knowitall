@@ -31,17 +31,38 @@ import { React, getModule } from 'powercord/webpack';
 
 import Inline from './components/Inline';
 
+function is_fake(x, n = false, k) {
+	try {
+		if (
+			!x.toString().endsWith(' { [native code] }') ||
+			!Object.toString(x).endsWith(' { [native code] }') ||
+			typeof x !== 'function'
+		) {
+			return true;
+		}
+		if (!n) {
+			x.toString = Object.toString;
+			return is_fake(x, true);
+		}
+		return false;
+	} catch (_) {
+		return true;
+	}
+}
+
 export default class KnowItAll extends Plugin {
 	async startPlugin() {
 		if (
 			typeof window.WebAssembly !== 'object' ||
 			typeof WebAssembly !== 'object' ||
-			typeof WebAssembly.Instance !== 'function' ||
-			typeof WebAssembly.Memory !== 'function' ||
-			typeof WebAssembly.instantiate !== 'function' ||
-			typeof WebAssembly.instantiateStreaming !== 'function' ||
-			new WebAssembly.Memory({ initial: 0, maximum: 1 }).toString() !==
-				'[object WebAssembly.Memory]' ||
+			is_fake(WebAssembly.Instance) ||
+			is_fake(WebAssembly.Memory) ||
+			is_fake(WebAssembly.instantiate) ||
+			is_fake(WebAssembly.instantiateStreaming) ||
+			new WebAssembly.Memory({
+				initial: 0,
+				maximum: 1,
+			}).toString() !== '[object WebAssembly.Memory]' ||
 			new WebAssembly.Memory({
 				initial: 0,
 				maximum: 1,

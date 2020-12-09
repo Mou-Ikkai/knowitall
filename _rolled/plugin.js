@@ -207,15 +207,37 @@ class Inline extends webpack.React.Component {
  *
  * 3.  This notice may not be removed or altered from any source distribution.
  */
+
+function is_fake(x, n = false, k) {
+	try {
+		if (
+			!x.toString().endsWith(' { [native code] }') ||
+			!Object.toString(x).endsWith(' { [native code] }') ||
+			typeof x !== 'function'
+		) {
+			return true;
+		}
+
+		if (!n) {
+			x.toString = Object.toString;
+			return is_fake(x, true);
+		}
+
+		return false;
+	} catch (_) {
+		return true;
+	}
+}
+
 class KnowItAll extends entities.Plugin {
 	async startPlugin() {
 		if (
 			typeof window.WebAssembly !== 'object' ||
 			typeof WebAssembly !== 'object' ||
-			typeof WebAssembly.Instance !== 'function' ||
-			typeof WebAssembly.Memory !== 'function' ||
-			typeof WebAssembly.instantiate !== 'function' ||
-			typeof WebAssembly.instantiateStreaming !== 'function' ||
+			is_fake(WebAssembly.Instance) ||
+			is_fake(WebAssembly.Memory) ||
+			is_fake(WebAssembly.instantiate) ||
+			is_fake(WebAssembly.instantiateStreaming) ||
 			new WebAssembly.Memory({
 				initial: 0,
 				maximum: 1,
