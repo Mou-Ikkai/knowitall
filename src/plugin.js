@@ -51,7 +51,6 @@ export default class KnowItAll extends Plugin {
 
 	async inject_hooks() {
 		const ChannelMessage = (await getModule(['MESSAGE_ID_PREFIX'])).default;
-		const oType = ChannelMessage.type;
 		inject(
 			'knowitall_ChannelMessage',
 			ChannelMessage,
@@ -111,12 +110,14 @@ export default class KnowItAll extends Plugin {
 								);
 							}
 							let end = segment.end + 1;
+							this.log(segment.info);
 							split_segments.push(
 								React.createElement(Inline, {
 									original_text: element.slice(
 										segment.start,
 										segment.end
 									),
+									data: segment.info,
 								})
 							);
 							cursor = end;

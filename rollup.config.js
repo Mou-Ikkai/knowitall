@@ -33,7 +33,12 @@ import rust from '@wasm-tool/rollup-plugin-rust';
 export default {
 	input: 'src/plugin.js',
 	preserveEntrySignatures: 'strict',
-	external: ['powercord/entities', 'powercord/injector', 'powercord/webpack'],
+	external: [
+		'powercord/entities',
+		'powercord/injector',
+		'powercord/webpack',
+		'powercord/components',
+	],
 	output: {
 		dir: '_rolled',
 		format: 'cjs',
@@ -66,7 +71,7 @@ export default {
 		}),
 		rust({
 			nodejs: true,
-			watchPatterns: ['provider/src/**'],
+			watchPatterns: ['provider/src/**/*'],
 			importHook: function (path) {
 				return (
 					"require('path').join(__dirname, " +

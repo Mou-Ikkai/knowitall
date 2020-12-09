@@ -1,6 +1,6 @@
 /**
  * Bundle of knowitall
- * Generated: 12-08-2020
+ * Generated: 12-09-2020
  * Version: 1.0.0
  *
  * Copyright(C) 2020 aspen
@@ -29,6 +29,126 @@
 var entities = require('powercord/entities');
 var injector = require('powercord/injector');
 var webpack = require('powercord/webpack');
+var components = require('powercord/components');
+
+/*
+ * File: Bytes.jsx
+ * Project: knowitall
+ * Created Date: Wednesday, December 9th 2020, 2:40:04 pm
+ * Author: aspen
+ * -----
+ * Copyright (c) 2020 aspen
+ *
+ * This software is provided 'as-is', without any express or implied warranty. In
+ * no event will the authors be held liable for any damages arising from the use of
+ * this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose, including
+ * commercial applications, and to alter it and redistribute it freely, subject to
+ * the following restrictions:
+ *
+ * 1.  The origin of this software must not be misrepresented; you must not claim
+ *     that you wrote the original software. If you use this software in a product,
+ *     an acknowledgment in the product documentation would be appreciated but is
+ *     not required.
+ *
+ * 2.  Altered source versions must be plainly marked as such, and must not be
+ *     misrepresented as being the original software.
+ *
+ * 3.  This notice may not be removed or altered from any source distribution.
+ */
+
+const pretty_bytes = require('pretty-bytes');
+
+class ByteProvider extends webpack.React.Component {
+	render() {
+		const { data } = this.props;
+		let data_entries = [
+			pretty_bytes(data.bytes, {
+				bits: false,
+				binary: true,
+			}),
+			pretty_bytes(data.bytes, {
+				bits: false,
+				binary: false,
+			}),
+			pretty_bytes(data.bytes, {
+				bits: true,
+				binary: false,
+			}),
+			pretty_bytes(data.bytes, {
+				bits: true,
+				binary: true,
+			}),
+		];
+		return /*#__PURE__*/ webpack.React.createElement(
+			'div',
+			null,
+			data_entries
+				.filter(function (item, pos) {
+					return data_entries.indexOf(item) == pos;
+				})
+				.map((entry) =>
+					/*#__PURE__*/ webpack.React.createElement('div', null, entry)
+				)
+		);
+	}
+}
+
+/*
+ * File: TemperatureProvider.jsx
+ * Project: knowitall
+ * Created Date: Wednesday, December 9th 2020, 4:42:07 pm
+ * Author: aspen
+ * -----
+ * Copyright (c) 2020 aspen
+ *
+ * This software is provided 'as-is', without any express or implied warranty. In
+ * no event will the authors be held liable for any damages arising from the use of
+ * this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose, including
+ * commercial applications, and to alter it and redistribute it freely, subject to
+ * the following restrictions:
+ *
+ * 1.  The origin of this software must not be misrepresented; you must not claim
+ *     that you wrote the original software. If you use this software in a product,
+ *     an acknowledgment in the product documentation would be appreciated but is
+ *     not required.
+ *
+ * 2.  Altered source versions must be plainly marked as such, and must not be
+ *     misrepresented as being the original software.
+ *
+ * 3.  This notice may not be removed or altered from any source distribution.
+ */
+const F_MUL = 9 / 5;
+class TemperatureProvider extends webpack.React.Component {
+	render() {
+		const { data } = this.props;
+		return /*#__PURE__*/ webpack.React.createElement(
+			'div',
+			null,
+			/*#__PURE__*/ webpack.React.createElement(
+				'div',
+				null,
+				(data.kelvin + 273.15).toFixed(2),
+				' \xB0C'
+			),
+			/*#__PURE__*/ webpack.React.createElement(
+				'div',
+				null,
+				((data.kelvin - 273.15) * F_MUL + 32).toFixed(2),
+				' \xB0F'
+			),
+			/*#__PURE__*/ webpack.React.createElement(
+				'div',
+				null,
+				data.kelvin.toFixed(2),
+				' \xB0K'
+			)
+		);
+	}
+}
 
 /*
  * File: Inline.jsx
@@ -56,17 +176,25 @@ var webpack = require('powercord/webpack');
  *
  * 3.  This notice may not be removed or altered from any source distribution.
  */
-const { React } = require('powercord/webpack');
-
-const { Tooltip } = require('powercord/components');
-
-class Inline extends React.Component {
+class Inline extends webpack.React.Component {
 	render() {
-		const { original_text } = this.props;
-		return /*#__PURE__*/ React.createElement(
-			Tooltip,
+		const { original_text, data } = this.props;
+		let inner = 'placeholkder';
+
+		if (data.Bytes) {
+			inner = webpack.React.createElement(ByteProvider, {
+				data: data.Bytes,
+			});
+		} else if (data.Temperature) {
+			inner = webpack.React.createElement(TemperatureProvider, {
+				data: data.Temperature,
+			});
+		}
+
+		return /*#__PURE__*/ webpack.React.createElement(
+			components.Tooltip,
 			{
-				text: 'test',
+				text: inner,
 				className: 'knital-tooltip',
 			},
 			original_text
@@ -123,7 +251,6 @@ class KnowItAll extends entities.Plugin {
 	async inject_hooks() {
 		const ChannelMessage = (await webpack.getModule(['MESSAGE_ID_PREFIX']))
 			.default;
-		const oType = ChannelMessage.type;
 		injector.inject(
 			'knowitall_ChannelMessage',
 			ChannelMessage,
@@ -185,9 +312,11 @@ class KnowItAll extends entities.Plugin {
 							}
 
 							let end = segment.end + 1;
+							this.log(segment.info);
 							split_segments.push(
 								webpack.React.createElement(Inline, {
 									original_text: element.slice(segment.start, segment.end),
+									data: segment.info,
 								})
 							);
 							cursor = end;

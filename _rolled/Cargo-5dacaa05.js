@@ -1,6 +1,6 @@
 /**
  * Bundle of knowitall
- * Generated: 12-08-2020
+ * Generated: 12-09-2020
  * Version: 1.0.0
  *
  * Copyright(C) 2020 aspen
@@ -280,7 +280,7 @@ function loadFile(url) {
 var Cargo = async () => {
 	await init(
 		loadFile(
-			require('path').join(__dirname, 'assets/knowitall-provider-9f3b711e.wasm')
+			require('path').join(__dirname, 'assets/knowitall-provider-20ac88a9.wasm')
 		)
 	);
 	return exports$1;

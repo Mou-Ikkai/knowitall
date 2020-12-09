@@ -1,7 +1,7 @@
 /*
- * File: patterns.rs
+ * File: TemperatureProvider.jsx
  * Project: knowitall
- * Created Date: Monday, December 7th 2020, 6:26:39 pm
+ * Created Date: Wednesday, December 9th 2020, 4:42:07 pm
  * Author: aspen
  * -----
  * Copyright (c) 2020 aspen
@@ -25,37 +25,20 @@
  * 3.  This notice may not be removed or altered from any source distribution.
  */
 
-use once_cell::sync::Lazy;
-use regex::Regex;
+import { React } from 'powercord/webpack';
 
-macro_rules! lazy_regex {
-	($name: ident, $regex: tt) => {
-		pub static $name: Lazy<Regex> =
-			Lazy::new(|| Regex::new(concat!("(?iu)", $regex)).unwrap_or_else(|e| unreachable!(e)));
-	};
+const F_MUL = 9 / 5;
+
+export default class TemperatureProvider extends React.Component {
+	render() {
+		const { data } = this.props;
+
+		return (
+			<div>
+				<div>{(data.kelvin + 273.15).toFixed(2)} °C</div>
+				<div>{((data.kelvin - 273.15) * F_MUL + 32).toFixed(2)} °F</div>
+				<div>{data.kelvin.toFixed(2)} °K</div>
+			</div>
+		);
+	}
 }
-
-lazy_regex!(
-	TWELVE_HOUR_TIME,
-	r#"\b((?P<hour>1[0-2]|0?[1-9]):(?P<minute>[0-5][0-9]) (?P<meridiem>[AaPp][Mm]))"#
-);
-
-lazy_regex!(
-	TWENTY_FOUR_HOUR_TIME,
-	r#"\b((?P<hour>[01]?[0-9]|2[0-3]):(?P<minute>[0-5][0-9]))\b"#
-);
-
-lazy_regex!(
-	BYTE_SIZE,
-	r#"\b((?P<size_value>[\p{N},.\+]+)(?:\s*)(?P<size_prefix>(?:k|kilo|m|mega|g|giga|t|tera|p|peta))?(?P<is_normal>i)?(?P<size_unit>b|byte|bit)s?)\b"#
-);
-
-lazy_regex!(
-	RGB_HEX,
-	r#"(#(?P<r>[[:xdigit:]]{2})(?P<g>[[:xdigit:]]{2})(?P<b>[[:xdigit:]]{2}))"#
-);
-
-lazy_regex!(
-	TEMPERATURE,
-	r#"[+-]?(?P<value>[\d.]+)[\s°]*(?P<unit>k|f|c|kelvin|fahrenheit|celsius|celcius)\b"#
-);

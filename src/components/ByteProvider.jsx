@@ -1,7 +1,7 @@
 /*
- * File: patterns.rs
+ * File: Bytes.jsx
  * Project: knowitall
- * Created Date: Monday, December 7th 2020, 6:26:39 pm
+ * Created Date: Wednesday, December 9th 2020, 2:40:04 pm
  * Author: aspen
  * -----
  * Copyright (c) 2020 aspen
@@ -25,37 +25,42 @@
  * 3.  This notice may not be removed or altered from any source distribution.
  */
 
-use once_cell::sync::Lazy;
-use regex::Regex;
+import { React } from 'powercord/webpack';
+const pretty_bytes = require('pretty-bytes');
 
-macro_rules! lazy_regex {
-	($name: ident, $regex: tt) => {
-		pub static $name: Lazy<Regex> =
-			Lazy::new(|| Regex::new(concat!("(?iu)", $regex)).unwrap_or_else(|e| unreachable!(e)));
-	};
+export default class ByteProvider extends React.Component {
+	render() {
+		const { data } = this.props;
+
+		let data_entries = [
+			pretty_bytes(data.bytes, {
+				bits: false,
+				binary: true,
+			}),
+			pretty_bytes(data.bytes, {
+				bits: false,
+				binary: false,
+			}),
+			pretty_bytes(data.bytes, {
+				bits: true,
+				binary: false,
+			}),
+			pretty_bytes(data.bytes, {
+				bits: true,
+				binary: true,
+			}),
+		];
+
+		return (
+			<div>
+				{data_entries
+					.filter(function (item, pos) {
+						return data_entries.indexOf(item) == pos;
+					})
+					.map((entry) => (
+						<div>{entry}</div>
+					))}
+			</div>
+		);
+	}
 }
-
-lazy_regex!(
-	TWELVE_HOUR_TIME,
-	r#"\b((?P<hour>1[0-2]|0?[1-9]):(?P<minute>[0-5][0-9]) (?P<meridiem>[AaPp][Mm]))"#
-);
-
-lazy_regex!(
-	TWENTY_FOUR_HOUR_TIME,
-	r#"\b((?P<hour>[01]?[0-9]|2[0-3]):(?P<minute>[0-5][0-9]))\b"#
-);
-
-lazy_regex!(
-	BYTE_SIZE,
-	r#"\b((?P<size_value>[\p{N},.\+]+)(?:\s*)(?P<size_prefix>(?:k|kilo|m|mega|g|giga|t|tera|p|peta))?(?P<is_normal>i)?(?P<size_unit>b|byte|bit)s?)\b"#
-);
-
-lazy_regex!(
-	RGB_HEX,
-	r#"(#(?P<r>[[:xdigit:]]{2})(?P<g>[[:xdigit:]]{2})(?P<b>[[:xdigit:]]{2}))"#
-);
-
-lazy_regex!(
-	TEMPERATURE,
-	r#"[+-]?(?P<value>[\d.]+)[\s°]*(?P<unit>k|f|c|kelvin|fahrenheit|celsius|celcius)\b"#
-);

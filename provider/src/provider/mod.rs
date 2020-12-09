@@ -27,6 +27,7 @@
 
 pub mod bytes;
 pub mod color;
+pub mod temperature;
 pub mod time;
 
 use chrono::NaiveTime;
@@ -35,6 +36,7 @@ use serde::{Deserialize, Serialize};
 
 pub static PROVIDERS: Lazy<Vec<Box<dyn Provider>>> = Lazy::new(|| {
 	vec![
+		Box::new(temperature::TemperatureProvider),
 		Box::new(bytes::ByteProvider),
 		Box::new(color::ColorProvider),
 		Box::new(time::TimeProvider),
@@ -44,8 +46,9 @@ pub static PROVIDERS: Lazy<Vec<Box<dyn Provider>>> = Lazy::new(|| {
 #[derive(Debug, Serialize, Deserialize)]
 pub enum Tooltip {
 	Time { time: NaiveTime },
-	Bytes { bytes: u64 },
+	Bytes { bytes: u64, bits: bool, si: bool },
 	Color { r: u8, g: u8, b: u8 },
+	Temperature { kelvin: f32 },
 }
 
 #[derive(Debug, Serialize, Deserialize)]

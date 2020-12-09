@@ -8,6 +8,6 @@ notice = "warn"
 
 [licenses]
 unlicensed = "deny"
-copyleft = "allow"
+copyleft = "warn"
 default = "allow"
 confidence-threshold = 0.8

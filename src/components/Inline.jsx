@@ -25,15 +25,29 @@
  * 3.  This notice may not be removed or altered from any source distribution.
  */
 
-const { React } = require('powercord/webpack');
-const { Tooltip } = require('powercord/components');
+import { React } from 'powercord/webpack';
+import { Tooltip } from 'powercord/components';
+
+import ByteProvider from './ByteProvider';
+import TemperatureProvider from './TemperatureProvider';
 
 export default class Inline extends React.Component {
 	render() {
-		const { original_text } = this.props;
+		const { original_text, data } = this.props;
+
+		let inner = 'placeholkder';
+		if (data.Bytes) {
+			inner = React.createElement(ByteProvider, {
+				data: data.Bytes,
+			});
+		} else if (data.Temperature) {
+			inner = React.createElement(TemperatureProvider, {
+				data: data.Temperature,
+			});
+		}
 
 		return (
-			<Tooltip text="test" className="knital-tooltip">
+			<Tooltip text={inner} className="knital-tooltip">
 				{original_text}
 			</Tooltip>
 		);

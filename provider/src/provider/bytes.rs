@@ -90,14 +90,21 @@ impl Provider for ByteProvider {
 					_ => value,
 				};
 
-				if unit.as_str() == "bit" {
+				let bits = if unit.as_str() == "bit" {
 					value /= 8;
-				}
+					true
+				} else {
+					false
+				};
 
 				InfoSegment {
 					start: segment.start(),
 					end: segment.end(),
-					info: Tooltip::Bytes { bytes: value },
+					info: Tooltip::Bytes {
+						bytes: value,
+						bits,
+						si: is_si,
+					},
 				}
 				.into()
 			})

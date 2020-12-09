@@ -1,7 +1,7 @@
 /*
- * File: time.rs
+ * File: temperature.rs
  * Project: knowitall
- * Created Date: Monday, December 7th 2020, 8:05:56 pm
+ * Created Date: Wednesday, December 9th 2020, 4:34:09 pm
  * Author: aspen
  * -----
  * Copyright (c) 2020 aspen
@@ -26,50 +26,50 @@
  */
 
 use crate::{
-	patterns::{TWELVE_HOUR_TIME, TWENTY_FOUR_HOUR_TIME},
+	patterns::TEMPERATURE,
 	provider::{InfoSegment, Provider, Tooltip},
 };
-use chrono::NaiveTime;
 
-pub struct TimeProvider;
+pub struct TemperatureProvider;
 
-impl Provider for TimeProvider {
+impl Provider for TemperatureProvider {
 	fn name(&self) -> &'static str {
-		"Time"
+		"Temperature"
 	}
 
 	fn parse_message(&self, src: &str) -> Vec<InfoSegment> {
-		TWELVE_HOUR_TIME
+		TEMPERATURE
 			.captures_iter(src)
-			.chain(TWENTY_FOUR_HOUR_TIME.captures_iter(src))
 			.filter_map(|capture| -> Option<InfoSegment> {
 				let segment = capture.get(0)?;
-				let meridiem = match capture.name("meridiem") {
-					Some(s) => match s.as_str().to_lowercase().as_str() {
-						"am" => 0,
-						"pm" => 12,
-						_ => return None,
-					},
-					None => 0,
-				};
-				let hour =
-					lexical::parse::<u32, _>(capture.name("hour")?.as_str()).ok()? + meridiem;
-				let minute = lexical::parse(capture.name("minute")?.as_str()).ok()?;
+				let (value, unit) = (
+					lexical::parse(capture.name("value")?.as_str()).ok()?,
+					capture.name("unit")?.as_str(),
+				);
 
-				// 00:00 AM is valid, but 24:00 isn't, and neither is HH:60.
-				if hour > 23 || minute > 59 {
-					None
-				} else {
-					InfoSegment {
-						start: segment.start(),
-						end: segment.end(),
-						info: Tooltip::Time {
-							time: NaiveTime::from_hms(hour, minute, 0),
-						},
-					}
-					.into()
+				let kelvin = match unit.to_lowercase().as_str() {
+					"c" | "celsius" | "celcius" => celsius_to_kelvin(value),
+					"f" | "fahrenheit" => fahrenheit_to_kelvin(value),
+					"k" | "kelvin" => value,
+					_ => return None,
+				};
+
+				InfoSegment {
+					start: segment.start(),
+					end: segment.end(),
+					info: Tooltip::Temperature { kelvin },
 				}
+				.into()
 			})
 			.collect()
 	}
+}
+
+fn celsius_to_kelvin(c: f32) -> f32 {
+	c + 273.15
+}
+
+fn fahrenheit_to_kelvin(f: f32) -> f32 {
+	const F_DIVISION: f32 = 5.0 / 9.0;
+	(f + 459.67) * F_DIVISION
 }
