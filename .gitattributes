@@ -1,14 +1,18 @@
-*       text=auto eol=lf
+*         text=auto eol=lf
 
 # Guaranteed to be text
-*.rs    text      eol=lf
-*.js    text      eol=lf
-*.jsx   text      eol=lf
-*.scss  text      eol=lf
-*.txt   text      eol=lf
-*.md    text      eol=lf
-*.toml  text      eol=lf
-*.json  text      eol=lf
+*.rs      text      eol=lf
+*.js      text      eol=lf
+*.jsx     text      eol=lf
+*.scss    text      eol=lf
+*.txt     text      eol=lf
+*.md      text      eol=lf
+*.toml    text      eol=lf
+*.json    text      eol=lf
 
 # Guaranteed to be binary
-*.wasm  binary
+*.wasm    binary
+
+# Ignore output files in Github linguist
+_rolled/* linguist-vendored
+
