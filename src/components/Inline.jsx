@@ -33,16 +33,18 @@ import TemperatureProvider from './TemperatureProvider';
 
 export default class Inline extends React.Component {
 	render() {
-		const { original_text, data } = this.props;
+		const { original_text, data, provider } = this.props;
 
 		let inner = 'placeholkder';
 		if (data.Bytes) {
 			inner = React.createElement(ByteProvider, {
 				data: data.Bytes,
+				provider,
 			});
 		} else if (data.Temperature) {
 			inner = React.createElement(TemperatureProvider, {
 				data: data.Temperature,
+				provider,
 			});
 		}
 

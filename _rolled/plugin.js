@@ -57,37 +57,14 @@ var components = require('powercord/components');
  *
  * 3.  This notice may not be removed or altered from any source distribution.
  */
-
-const pretty_bytes = require('pretty-bytes');
-
 class ByteProvider extends webpack.React.Component {
 	render() {
-		const { data } = this.props;
-		let data_entries = [
-			pretty_bytes(data.bytes, {
-				bits: false,
-				binary: true,
-			}),
-			pretty_bytes(data.bytes, {
-				bits: false,
-				binary: false,
-			}),
-			pretty_bytes(data.bytes, {
-				bits: true,
-				binary: false,
-			}),
-			pretty_bytes(data.bytes, {
-				bits: true,
-				binary: true,
-			}),
-		];
+		const { data, provider } = this.props;
 		return /*#__PURE__*/ webpack.React.createElement(
 			'div',
 			null,
-			data_entries
-				.filter(function (item, pos) {
-					return data_entries.indexOf(item) == pos;
-				})
+			provider
+				.bytesizes(BigInt(data.bytes))
 				.map((entry) =>
 					/*#__PURE__*/ webpack.React.createElement('div', null, entry)
 				)
@@ -178,16 +155,18 @@ class TemperatureProvider extends webpack.React.Component {
  */
 class Inline extends webpack.React.Component {
 	render() {
-		const { original_text, data } = this.props;
+		const { original_text, data, provider } = this.props;
 		let inner = 'placeholkder';
 
 		if (data.Bytes) {
 			inner = webpack.React.createElement(ByteProvider, {
 				data: data.Bytes,
+				provider,
 			});
 		} else if (data.Temperature) {
 			inner = webpack.React.createElement(TemperatureProvider, {
 				data: data.Temperature,
+				provider,
 			});
 		}
 
@@ -230,6 +209,21 @@ class Inline extends webpack.React.Component {
  */
 class KnowItAll extends entities.Plugin {
 	async startPlugin() {
+		if (
+			typeof WebAssembly !== 'object' ||
+			typeof window.WebAssembly !== 'object' ||
+			typeof WebAssembly.Instance !== 'function' ||
+			typeof WebAssembly.instantiate !== 'function' ||
+			typeof WebAssembly.instantiateStreaming !== 'function'
+		) {
+			powercord.api.notices.sendToast('knital-someone-fucked-up-wasm', {
+				header: 'KnowItAll',
+				content: 'WebAssembly is disabled. KnowItAll will not work without it.',
+				type: 'danger',
+			});
+			return;
+		}
+
 		this.loadStylesheet('scss/tooltip.scss');
 		await this.load_wasm_provider();
 		await this.import_functions();
@@ -238,7 +232,7 @@ class KnowItAll extends entities.Plugin {
 
 	async load_wasm_provider() {
 		this.wasm = await Promise.resolve().then(function () {
-			return require('./Cargo-5dacaa05.js');
+			return require('./Cargo-8ea1dea2.js');
 		});
 		this.Provider = await this.wasm.default();
 	}
@@ -312,9 +306,9 @@ class KnowItAll extends entities.Plugin {
 							}
 
 							let end = segment.end + 1;
-							this.log(segment.info);
 							split_segments.push(
 								webpack.React.createElement(Inline, {
+									provider: this.Provider,
 									original_text: element.slice(segment.start, segment.end),
 									data: segment.info,
 								})

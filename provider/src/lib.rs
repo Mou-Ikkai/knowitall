@@ -50,3 +50,12 @@ pub fn parse_message(msg: &str) -> JsValue {
 
 	JsValue::from_serde(&segments).unwrap()
 }
+
+#[wasm_bindgen]
+pub fn bytesizes(bytes: u64) -> JsValue {
+	JsValue::from_serde(&[
+		bytesize::to_string(bytes, true),
+		bytesize::to_string(bytes, false),
+	])
+	.unwrap()
+}

@@ -149,6 +149,20 @@ function parse_message(msg) {
 	var ret = wasm.parse_message(ptr0, len0);
 	return takeObject(ret);
 }
+const u32CvtShim = new Uint32Array(2);
+const uint64CvtShim = new BigUint64Array(u32CvtShim.buffer);
+/**
+ * @param {BigInt} bytes
+ * @returns {any}
+ */
+
+function bytesizes(bytes) {
+	uint64CvtShim[0] = bytes;
+	const low0 = u32CvtShim[0];
+	const high0 = u32CvtShim[1];
+	var ret = wasm.bytesizes(low0, high0);
+	return takeObject(ret);
+}
 let cachegetInt32Memory0 = null;
 
 function getInt32Memory0() {
@@ -200,7 +214,7 @@ async function init(input) {
 		input = (typeof document === 'undefined'
 			? new (require('u' + 'rl').URL)('file:' + __filename).href
 			: (document.currentScript && document.currentScript.src) ||
-			  new URL('Cargo-5dacaa05.js', document.baseURI).href
+			  new URL('Cargo-8ea1dea2.js', document.baseURI).href
 		).replace(/\.js$/, '_bg.wasm');
 	}
 
@@ -262,6 +276,7 @@ var exports$1 = /*#__PURE__*/ Object.freeze({
 	__proto__: null,
 	wasm_main: wasm_main,
 	parse_message: parse_message,
+	bytesizes: bytesizes,
 	default: init,
 });
 
@@ -280,7 +295,7 @@ function loadFile(url) {
 var Cargo = async () => {
 	await init(
 		loadFile(
-			require('path').join(__dirname, 'assets/knowitall-provider-20ac88a9.wasm')
+			require('path').join(__dirname, 'assets/knowitall-provider-cbe173dd.wasm')
 		)
 	);
 	return exports$1;

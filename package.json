@@ -47,7 +47,5 @@
 		"rollup-plugin-license": "^2.2.0",
 		"rollup-plugin-prettier": "^2.1.0"
 	},
-	"dependencies": {
-		"pretty-bytes": "^5.4.1"
-	}
+	"dependencies": {}
 }

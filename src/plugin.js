@@ -27,12 +27,27 @@
 
 import { Plugin } from 'powercord/entities';
 import { inject, uninject } from 'powercord/injector';
-import { React, Flux, getModule } from 'powercord/webpack';
+import { React, getModule } from 'powercord/webpack';
 
 import Inline from './components/Inline';
 
 export default class KnowItAll extends Plugin {
 	async startPlugin() {
+		if (
+			typeof WebAssembly !== 'object' ||
+			typeof window.WebAssembly !== 'object' ||
+			typeof WebAssembly.Instance !== 'function' ||
+			typeof WebAssembly.instantiate !== 'function' ||
+			typeof WebAssembly.instantiateStreaming !== 'function'
+		) {
+			powercord.api.notices.sendToast('knital-someone-fucked-up-wasm', {
+				header: 'KnowItAll',
+				content:
+					'WebAssembly is disabled. KnowItAll will not work without it.',
+				type: 'danger',
+			});
+			return;
+		}
 		this.loadStylesheet('scss/tooltip.scss');
 		await this.load_wasm_provider();
 		await this.import_functions();
@@ -110,9 +125,9 @@ export default class KnowItAll extends Plugin {
 								);
 							}
 							let end = segment.end + 1;
-							this.log(segment.info);
 							split_segments.push(
 								React.createElement(Inline, {
+									provider: this.Provider,
 									original_text: element.slice(
 										segment.start,
 										segment.end

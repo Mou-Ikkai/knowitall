@@ -26,40 +26,16 @@
  */
 
 import { React } from 'powercord/webpack';
-const pretty_bytes = require('pretty-bytes');
 
 export default class ByteProvider extends React.Component {
 	render() {
-		const { data } = this.props;
-
-		let data_entries = [
-			pretty_bytes(data.bytes, {
-				bits: false,
-				binary: true,
-			}),
-			pretty_bytes(data.bytes, {
-				bits: false,
-				binary: false,
-			}),
-			pretty_bytes(data.bytes, {
-				bits: true,
-				binary: false,
-			}),
-			pretty_bytes(data.bytes, {
-				bits: true,
-				binary: true,
-			}),
-		];
+		const { data, provider } = this.props;
 
 		return (
 			<div>
-				{data_entries
-					.filter(function (item, pos) {
-						return data_entries.indexOf(item) == pos;
-					})
-					.map((entry) => (
-						<div>{entry}</div>
-					))}
+				{provider.bytesizes(BigInt(data.bytes)).map((entry) => (
+					<div>{entry}</div>
+				))}
 			</div>
 		);
 	}
