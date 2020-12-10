@@ -35,7 +35,7 @@ export default class TemperatureProvider extends React.Component {
 
 		return (
 			<div>
-				<div>{(data.kelvin + 273.15).toFixed(2)} °C</div>
+				<div>{(data.kelvin - 273.15).toFixed(2)} °C</div>
 				<div>{((data.kelvin - 273.15) * F_MUL + 32).toFixed(2)} °F</div>
 				<div>{data.kelvin.toFixed(2)} °K</div>
 			</div>

@@ -108,7 +108,7 @@ class TemperatureProvider extends webpack.React.Component {
 			/*#__PURE__*/ webpack.React.createElement(
 				'div',
 				null,
-				(data.kelvin + 273.15).toFixed(2),
+				(data.kelvin - 273.15).toFixed(2),
 				' \xB0C'
 			),
 			/*#__PURE__*/ webpack.React.createElement(
