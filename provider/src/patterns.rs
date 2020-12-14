@@ -36,16 +36,6 @@ macro_rules! lazy_regex {
 }
 
 lazy_regex!(
-	TWELVE_HOUR_TIME,
-	r#"\b((?P<hour>1[0-2]|0?[1-9]):(?P<minute>[0-5][0-9]) (?P<meridiem>[AaPp][Mm]))"#
-);
-
-lazy_regex!(
-	TWENTY_FOUR_HOUR_TIME,
-	r#"\b((?P<hour>[01]?[0-9]|2[0-3]):(?P<minute>[0-5][0-9]))\b"#
-);
-
-lazy_regex!(
 	BYTE_SIZE,
 	r#"\b((?P<size_value>[\p{N},.\+]+)(?:\s*)(?P<size_prefix>(?:k|kilo|m|mega|g|giga|t|tera|p|peta))?(?P<is_normal>i)?(?P<size_unit>b|byte|bit)s?)\b"#
 );
@@ -53,11 +43,6 @@ lazy_regex!(
 lazy_regex!(
 	RGB_HEX,
 	r#"(#(?P<r>[[:xdigit:]]{2})(?P<g>[[:xdigit:]]{2})(?P<b>[[:xdigit:]]{2})(?P<a>[[:xdigit:]]{2})?)"#
-);
-
-lazy_regex!(
-	LENGTH,
-	r#"\b((?P<value>[\d.]+)\s*((?P<imperial>inch|in|feet|ft|yard|yd|mile|mi)|(?P<metric_prefix>kilo|k|c|centi)?(?P<metric>meter|m))(es|s)?)\b"#
 );
 
 lazy_regex!(

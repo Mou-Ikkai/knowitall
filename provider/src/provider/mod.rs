@@ -28,32 +28,25 @@
 pub mod base64;
 pub mod bytes;
 pub mod color;
-pub mod length;
 pub mod temperature;
-pub mod time;
 
-use chrono::NaiveTime;
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 
 pub static PROVIDERS: Lazy<Vec<Box<dyn Provider>>> = Lazy::new(|| {
 	vec![
 		Box::new(base64::Base64Provider),
-		Box::new(temperature::TemperatureProvider),
-		Box::new(length::LengthProvider),
 		Box::new(bytes::ByteProvider),
 		Box::new(color::ColorProvider),
-		Box::new(time::TimeProvider),
+		Box::new(temperature::TemperatureProvider),
 	]
 });
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum Tooltip {
-	Time { time: NaiveTime },
 	Bytes { bytes: u64, bits: bool, si: bool },
 	Color { r: u8, g: u8, b: u8, a: u8 },
 	Temperature { kelvin: f64 },
-	Length { meters: f64 },
 	Base64 { text: String },
 }
 

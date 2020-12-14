@@ -32,7 +32,7 @@ var webpack = require('powercord/webpack');
 var components = require('powercord/components');
 
 /*
- * File: Bytes.jsx
+ * File: ByteProvider.jsx
  * Project: knowitall
  * Created Date: Wednesday, December 9th 2020, 2:40:04 pm
  * Author: aspen
@@ -308,7 +308,7 @@ class KnowItAll extends entities.Plugin {
 
 	async load_wasm_provider() {
 		this.wasm = await Promise.resolve().then(function () {
-			return require('./Cargo-820fc15f.js');
+			return require('./Cargo-8ea1dea2.js');
 		});
 		this.Provider = await this.wasm.default();
 	}
