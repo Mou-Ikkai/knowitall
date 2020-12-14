@@ -29,6 +29,7 @@ import { Plugin } from 'powercord/entities';
 import { inject, uninject } from 'powercord/injector';
 import { React, getModule } from 'powercord/webpack';
 import Inline from './components/Inline';
+import Settings from './components/Settings';
 
 export default class KnowItAll extends Plugin {
 	async startPlugin() {
@@ -48,6 +49,11 @@ export default class KnowItAll extends Plugin {
 		await this.load_wasm_provider();
 		await this.import_functions();
 		await this.inject_hooks();
+		powercord.api.settings.registerSettings('knowitall', {
+			label: 'KnowItAll',
+			category: this.entityID,
+			render: Settings,
+		});
 	}
 
 	async load_wasm_provider() {
@@ -151,6 +157,9 @@ export default class KnowItAll extends Plugin {
 	}
 
 	pluginWillUnload() {
-		uninject('knowitall_ChannelMessage');
+		uninject('knowitall_parse');
+		uninject('knowitall_parse_links');
+		uninject('knowitall_parse_topic');
+		powercord.api.settings.unregisterSettings(this.entityID);
 	}
 }

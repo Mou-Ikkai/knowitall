@@ -1,7 +1,7 @@
 /**
  * Bundle of knowitall
  * Generated: 12-14-2020
- * Version: 1.0.0
+ * Version: 0.1.0
  *
  * Copyright(C) 2020 aspen
  *

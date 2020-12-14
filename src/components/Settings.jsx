@@ -1,7 +1,7 @@
 /*
- * File: tooltip.scss
+ * File: Settings.jsx
  * Project: knowitall
- * Created Date: Tuesday, December 8th 2020, 8:44:44 pm
+ * Created Date: Monday, December 14th 2020, 2:57:00 pm
  * Author: aspen
  * -----
  * Copyright (c) 2020 aspen
@@ -25,43 +25,36 @@
  * 3.  This notice may not be removed or altered from any source distribution.
  */
 
-.knital-tooltip {
-	width: fit-content;
-	display: inline;
-}
+import { React } from 'powercord/webpack';
 
-.knital-color-box {
-	display: inline-block;
-	border-radius: 5px;
-	width: 50px;
-	height: 50px;
-}
+export default class Settings extends React.Component {
+	render() {
+		return (
+			<div className="knital-settings">
+				<center>
+					<h1>Settings is WIP!</h1>
+				</center>
 
-.knital-settings {
-	height: 75vh;
-	color: var(--text-normal);
-}
-
-.knital-settings-footer {
-	position: absolute;
-	text-align: center;
-	width: 100%;
-	bottom: 0;
-}
-
-// If you have a problem with this, go make your own damn plugin :)
-.knital-trans {
-	color: black;
-	background: -webkit-linear-gradient(
-		#4fa5c2 0%,
-		#4fa5c2 20%,
-		#f587ac 20%,
-		#f587ac 40%,
-		#ffffff 40%,
-		#ffffff 60%,
-		#f587ac 60%,
-		#f587ac 80%,
-		#4fa5c2 80%,
-		#4fa5c2 100%
-	);
+				<div className="knital-settings-footer">
+					<p>
+						Made by{' '}
+						<a href="http://github.com/aspenluxxxy">aspen#0042</a>{' '}
+						<br />
+						KnowItAll is licensed under the{' '}
+						<a href="https://tldrlegal.com/license/zlib-libpng-license-(zlib)">
+							zlib/libpng license
+						</a>
+					</p>
+					<p>
+						<a
+							className="knital-trans"
+							href="https://transequality.org/"
+						>
+							Trans rights are human rights!
+						</a>
+					</p>
+				</div>
+			</div>
+		);
+	}
 }

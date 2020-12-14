@@ -1,7 +1,7 @@
 /**
  * Bundle of knowitall
  * Generated: 12-14-2020
- * Version: 1.0.0
+ * Version: 0.1.0
  *
  * Copyright(C) 2020 aspen
  *
@@ -261,6 +261,94 @@ class Inline extends webpack.React.Component {
 }
 
 /*
+ * File: Settings.jsx
+ * Project: knowitall
+ * Created Date: Monday, December 14th 2020, 2:57:00 pm
+ * Author: aspen
+ * -----
+ * Copyright (c) 2020 aspen
+ *
+ * This software is provided 'as-is', without any express or implied warranty. In
+ * no event will the authors be held liable for any damages arising from the use of
+ * this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose, including
+ * commercial applications, and to alter it and redistribute it freely, subject to
+ * the following restrictions:
+ *
+ * 1.  The origin of this software must not be misrepresented; you must not claim
+ *     that you wrote the original software. If you use this software in a product,
+ *     an acknowledgment in the product documentation would be appreciated but is
+ *     not required.
+ *
+ * 2.  Altered source versions must be plainly marked as such, and must not be
+ *     misrepresented as being the original software.
+ *
+ * 3.  This notice may not be removed or altered from any source distribution.
+ */
+class Settings extends webpack.React.Component {
+	render() {
+		return /*#__PURE__*/ webpack.React.createElement(
+			'div',
+			{
+				className: 'knital-settings',
+			},
+			/*#__PURE__*/ webpack.React.createElement(
+				'center',
+				null,
+				/*#__PURE__*/ webpack.React.createElement(
+					'h1',
+					null,
+					'Settings is WIP!'
+				)
+			),
+			/*#__PURE__*/ webpack.React.createElement(
+				'div',
+				{
+					className: 'knital-settings-footer',
+				},
+				/*#__PURE__*/ webpack.React.createElement(
+					'p',
+					null,
+					'Made by',
+					' ',
+					/*#__PURE__*/ webpack.React.createElement(
+						'a',
+						{
+							href: 'http://github.com/aspenluxxxy',
+						},
+						'aspen#0042'
+					),
+					' ',
+					/*#__PURE__*/ webpack.React.createElement('br', null),
+					'KnowItAll is licensed under the',
+					' ',
+					/*#__PURE__*/ webpack.React.createElement(
+						'a',
+						{
+							href: 'https://tldrlegal.com/license/zlib-libpng-license-(zlib)',
+						},
+						'zlib/libpng license'
+					)
+				),
+				/*#__PURE__*/ webpack.React.createElement(
+					'p',
+					null,
+					/*#__PURE__*/ webpack.React.createElement(
+						'a',
+						{
+							className: 'knital-trans',
+							href: 'https://transequality.org/',
+						},
+						'Trans rights are human rights!'
+					)
+				)
+			)
+		);
+	}
+}
+
+/*
  * File: plugin.js
  * Project: knowitall
  * Created Date: Monday, December 7th 2020, 5:57:56 pm
@@ -304,6 +392,11 @@ class KnowItAll extends entities.Plugin {
 		await this.load_wasm_provider();
 		await this.import_functions();
 		await this.inject_hooks();
+		powercord.api.settings.registerSettings('knowitall', {
+			label: 'KnowItAll',
+			category: this.entityID,
+			render: Settings,
+		});
 	}
 
 	async load_wasm_provider() {
@@ -417,7 +510,10 @@ class KnowItAll extends entities.Plugin {
 	}
 
 	pluginWillUnload() {
-		injector.uninject('knowitall_ChannelMessage');
+		injector.uninject('knowitall_parse');
+		injector.uninject('knowitall_parse_links');
+		injector.uninject('knowitall_parse_topic');
+		powercord.api.settings.unregisterSettings(this.entityID);
 	}
 }
 
