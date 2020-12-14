@@ -1,7 +1,7 @@
 /*
- * File: tooltip.scss
+ * File: ColorProvider.jsx
  * Project: knowitall
- * Created Date: Tuesday, December 8th 2020, 8:44:44 pm
+ * Created Date: Monday, December 14th 2020, 11:43:11 am
  * Author: aspen
  * -----
  * Copyright (c) 2020 aspen
@@ -25,14 +25,19 @@
  * 3.  This notice may not be removed or altered from any source distribution.
  */
 
-.knital-tooltip {
-	width: fit-content;
-	display: inline;
-}
+import { React } from 'powercord/webpack';
 
-.knital-color-box {
-	display: inline-block;
-	border-radius: 5px;
-	width: 50px;
-	height: 50px;
+export default class ColorProvider extends React.Component {
+	render() {
+		const { color } = this.props;
+
+		return (
+			<div
+				className="knital-color-box"
+				style={{
+					backgroundColor: `rgb(${color.r}, ${color.g}, ${color.b})`,
+				}}
+			/>
+		);
+	}
 }

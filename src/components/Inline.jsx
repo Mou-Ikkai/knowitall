@@ -31,6 +31,7 @@ import { Tooltip } from 'powercord/components';
 import ByteProvider from './ByteProvider';
 import TemperatureProvider from './TemperatureProvider';
 import PlaintextProvider from './PlaintextProvider';
+import ColorProvider from './ColorProvider';
 
 export default class Inline extends React.Component {
 	render() {
@@ -50,6 +51,10 @@ export default class Inline extends React.Component {
 		} else if (data.Base64) {
 			inner = React.createElement(PlaintextProvider, {
 				text: data.Base64.text,
+			});
+		} else if (data.Color) {
+			inner = React.createElement(ColorProvider, {
+				color: data.Color,
 			});
 		}
 

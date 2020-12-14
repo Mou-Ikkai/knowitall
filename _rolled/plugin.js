@@ -161,6 +161,44 @@ class PlaintextProvider extends webpack.React.Component {
 }
 
 /*
+ * File: ColorProvider.jsx
+ * Project: knowitall
+ * Created Date: Monday, December 14th 2020, 11:43:11 am
+ * Author: aspen
+ * -----
+ * Copyright (c) 2020 aspen
+ *
+ * This software is provided 'as-is', without any express or implied warranty. In
+ * no event will the authors be held liable for any damages arising from the use of
+ * this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose, including
+ * commercial applications, and to alter it and redistribute it freely, subject to
+ * the following restrictions:
+ *
+ * 1.  The origin of this software must not be misrepresented; you must not claim
+ *     that you wrote the original software. If you use this software in a product,
+ *     an acknowledgment in the product documentation would be appreciated but is
+ *     not required.
+ *
+ * 2.  Altered source versions must be plainly marked as such, and must not be
+ *     misrepresented as being the original software.
+ *
+ * 3.  This notice may not be removed or altered from any source distribution.
+ */
+class ColorProvider extends webpack.React.Component {
+	render() {
+		const { color } = this.props;
+		return /*#__PURE__*/ webpack.React.createElement('div', {
+			className: 'knital-color-box',
+			style: {
+				backgroundColor: `rgb(${color.r}, ${color.g}, ${color.b})`,
+			},
+		});
+	}
+}
+
+/*
  * File: Inline.jsx
  * Project: knowitall
  * Created Date: Tuesday, December 8th 2020, 6:01:55 pm
@@ -204,6 +242,10 @@ class Inline extends webpack.React.Component {
 		} else if (data.Base64) {
 			inner = webpack.React.createElement(PlaintextProvider, {
 				text: data.Base64.text,
+			});
+		} else if (data.Color) {
+			inner = webpack.React.createElement(ColorProvider, {
+				color: data.Color,
 			});
 		}
 
