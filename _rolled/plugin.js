@@ -1,6 +1,6 @@
 /**
  * Bundle of knowitall
- * Generated: 12-09-2020
+ * Generated: 12-14-2020
  * Version: 1.0.0
  *
  * Copyright(C) 2020 aspen
@@ -128,6 +128,39 @@ class TemperatureProvider extends webpack.React.Component {
 }
 
 /*
+ * File: PlaintextProvider.jsx
+ * Project: knowitall
+ * Created Date: Monday, December 14th 2020, 10:32:06 am
+ * Author: aspen
+ * -----
+ * Copyright (c) 2020 aspen
+ *
+ * This software is provided 'as-is', without any express or implied warranty. In
+ * no event will the authors be held liable for any damages arising from the use of
+ * this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose, including
+ * commercial applications, and to alter it and redistribute it freely, subject to
+ * the following restrictions:
+ *
+ * 1.  The origin of this software must not be misrepresented; you must not claim
+ *     that you wrote the original software. If you use this software in a product,
+ *     an acknowledgment in the product documentation would be appreciated but is
+ *     not required.
+ *
+ * 2.  Altered source versions must be plainly marked as such, and must not be
+ *     misrepresented as being the original software.
+ *
+ * 3.  This notice may not be removed or altered from any source distribution.
+ */
+class PlaintextProvider extends webpack.React.Component {
+	render() {
+		const { text } = this.props;
+		return /*#__PURE__*/ webpack.React.createElement('div', null, text);
+	}
+}
+
+/*
  * File: Inline.jsx
  * Project: knowitall
  * Created Date: Tuesday, December 8th 2020, 6:01:55 pm
@@ -168,6 +201,10 @@ class Inline extends webpack.React.Component {
 				data: data.Temperature,
 				provider,
 			});
+		} else if (data.Base64) {
+			inner = webpack.React.createElement(PlaintextProvider, {
+				text: data.Base64.text,
+			});
 		}
 
 		return /*#__PURE__*/ webpack.React.createElement(
@@ -207,49 +244,11 @@ class Inline extends webpack.React.Component {
  *
  * 3.  This notice may not be removed or altered from any source distribution.
  */
-
-function is_fake(x, n = false, k) {
-	try {
-		if (
-			!x.toString().endsWith(' { [native code] }') ||
-			!Object.toString(x).endsWith(' { [native code] }') ||
-			typeof x !== 'function'
-		) {
-			return true;
-		}
-
-		if (!n) {
-			x.toString = Object.toString;
-			return is_fake(x, true);
-		}
-
-		return false;
-	} catch (_) {
-		return true;
-	}
-}
-
 class KnowItAll extends entities.Plugin {
 	async startPlugin() {
 		if (
 			typeof window.WebAssembly !== 'object' ||
-			typeof WebAssembly !== 'object' ||
-			is_fake(WebAssembly.Instance) ||
-			is_fake(WebAssembly.Memory) ||
-			is_fake(WebAssembly.instantiate) ||
-			is_fake(WebAssembly.instantiateStreaming) ||
-			new WebAssembly.Memory({
-				initial: 0,
-				maximum: 1,
-			}).toString() !== '[object WebAssembly.Memory]' ||
-			new WebAssembly.Memory({
-				initial: 0,
-				maximum: 1,
-			}).buffer.toString() !== '[object ArrayBuffer]' ||
-			new WebAssembly.Memory({
-				initial: 0,
-				maximum: 1,
-			}).buffer.byteLength !== 0
+			typeof WebAssembly !== 'object'
 		) {
 			powercord.api.notices.sendToast('knital-someone-fucked-up-wasm', {
 				header: 'KnowItAll',
@@ -267,7 +266,7 @@ class KnowItAll extends entities.Plugin {
 
 	async load_wasm_provider() {
 		this.wasm = await Promise.resolve().then(function () {
-			return require('./Cargo-8ea1dea2.js');
+			return require('./Cargo-820fc15f.js');
 		});
 		this.Provider = await this.wasm.default();
 	}
@@ -278,28 +277,20 @@ class KnowItAll extends entities.Plugin {
 	}
 
 	async inject_hooks() {
-		const ChannelMessage = (await webpack.getModule(['MESSAGE_ID_PREFIX']))
-			.default;
+		const parser = await webpack.getModule(['parse', 'parseTopic']);
+		const topic_handler = this.handle_topic.bind(this);
+		injector.inject('knowitall_parse', parser, 'parse', topic_handler);
 		injector.inject(
-			'knowitall_ChannelMessage',
-			ChannelMessage,
-			'type',
-			(args, res) => {
-				try {
-					if (
-						typeof res?.props?.childrenMessageContent?.props?.content ===
-						'object'
-					) {
-						res.props.childrenMessageContent.props.content = this.handle_message_content(
-							res.props.childrenMessageContent.props.content
-						);
-					}
-				} catch (e) {
-					this.error(e);
-				}
-
-				return res;
-			}
+			'knowitall_parse_links',
+			parser,
+			'parseAllowLinks',
+			topic_handler
+		);
+		injector.inject(
+			'knowitall_parse_topic',
+			parser,
+			'parseTopic',
+			topic_handler
 		);
 	}
 
@@ -309,6 +300,18 @@ class KnowItAll extends entities.Plugin {
 		}
 
 		return (await webpack.getModule(filter))[functionName];
+	}
+
+	handle_topic(args, res) {
+		try {
+			if (typeof res === 'object') {
+				res = this.handle_message_content(res);
+			}
+		} catch (e) {
+			this.error(e);
+		}
+
+		return res;
 	}
 
 	handle_message_content(content) {

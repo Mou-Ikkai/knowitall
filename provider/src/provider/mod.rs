@@ -25,8 +25,10 @@
  * 3.  This notice may not be removed or altered from any source distribution.
  */
 
+pub mod base64;
 pub mod bytes;
 pub mod color;
+pub mod length;
 pub mod temperature;
 pub mod time;
 
@@ -36,7 +38,9 @@ use serde::{Deserialize, Serialize};
 
 pub static PROVIDERS: Lazy<Vec<Box<dyn Provider>>> = Lazy::new(|| {
 	vec![
+		Box::new(base64::Base64Provider),
 		Box::new(temperature::TemperatureProvider),
+		Box::new(length::LengthProvider),
 		Box::new(bytes::ByteProvider),
 		Box::new(color::ColorProvider),
 		Box::new(time::TimeProvider),
@@ -47,8 +51,10 @@ pub static PROVIDERS: Lazy<Vec<Box<dyn Provider>>> = Lazy::new(|| {
 pub enum Tooltip {
 	Time { time: NaiveTime },
 	Bytes { bytes: u64, bits: bool, si: bool },
-	Color { r: u8, g: u8, b: u8 },
-	Temperature { kelvin: f32 },
+	Color { r: u8, g: u8, b: u8, a: u8 },
+	Temperature { kelvin: f64 },
+	Length { meters: f64 },
+	Base64 { text: String },
 }
 
 #[derive(Debug, Serialize, Deserialize)]

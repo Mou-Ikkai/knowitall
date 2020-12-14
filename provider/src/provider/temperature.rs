@@ -29,6 +29,7 @@ use crate::{
 	patterns::TEMPERATURE,
 	provider::{InfoSegment, Provider, Tooltip},
 };
+use measurements::Temperature;
 
 pub struct TemperatureProvider;
 
@@ -48,11 +49,12 @@ impl Provider for TemperatureProvider {
 				);
 
 				let kelvin = match unit.to_lowercase().as_str() {
-					"c" | "celsius" | "celcius" => celsius_to_kelvin(value),
-					"f" | "fahrenheit" => fahrenheit_to_kelvin(value),
-					"k" | "kelvin" => value,
+					"c" | "celsius" | "celcius" => Temperature::from_celsius(value),
+					"f" | "fahrenheit" => Temperature::from_fahrenheit(value),
+					"k" | "kelvin" => Temperature::from_kelvin(value),
 					_ => return None,
-				};
+				}
+				.as_kelvin();
 
 				InfoSegment {
 					start: segment.start(),
@@ -63,13 +65,4 @@ impl Provider for TemperatureProvider {
 			})
 			.collect()
 	}
-}
-
-fn celsius_to_kelvin(c: f32) -> f32 {
-	c + 273.15
-}
-
-fn fahrenheit_to_kelvin(f: f32) -> f32 {
-	const F_DIVISION: f32 = 5.0 / 9.0;
-	(f + 459.67) * F_DIVISION
 }

@@ -7,12 +7,14 @@ The intent is similar to [powercord-message-tooltips](https://github.com/lorence
 ## Supported Data Types
 
 
-| Name        | Description                                                                                             | Example | Provider                                               |
-| ----------- | ------------------------------------------------------------------------------------------------------- | ------- | ------------------------------------------------------ |
-| Bytes       | Byte measurement units, such as kilo/mega/giga/tera/pera bytes/bits. Supports both binary and SI units. | 14 GB   | [bytes.rs](provider/src/provider/bytes.rs)             |
-| RGB Colors  | Hex-encoded RGB color                                                                                   | #2f2f2f | [color.rs](provider/src/provider/color.rs)             |
-| Time        | Time of the day, in both 24-hour and 12-hour format                                                     | 6:30 AM | [time.rs](provider/src/provider/time.rs)               |
-| Temperature | Conversions between Celsius, Fahrenheit, and Kelvin                                                     | 23.0 F  | [temperature.rs](provider/src/provider/temperature.rs) |
+| Name        | Description                                                                                             | Example                                                      | Provider                                               |
+| ----------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
+| Bytes       | Byte measurement units, such as kilo/mega/giga/tera/pera bytes/bits. Supports both binary and SI units. | 14 GB                                                        | [bytes.rs](provider/src/provider/bytes.rs)             |
+| RGB Colors  | Hex-encoded RGB color                                                                                   | #2f2f2f                                                      | [color.rs](provider/src/provider/color.rs)             |
+| Time        | Time of the day, in both 24-hour and 12-hour format                                                     | 6:30 AM                                                      | [time.rs](provider/src/provider/time.rs)               |
+| Temperature | Conversions between Celsius, Fahrenheit, and Kelvin                                                     | 23.0 F                                                       | [temperature.rs](provider/src/provider/temperature.rs) |
+| Base64      | Decoding Base64-encoded text (this will only display if the it decodes to valid UTF-8)                  | aHR0cHM6Ly93d3cueW91dHViZS5jb20vd2F0Y2g/dj1kUXc0dzlXZ1hjUQ== | [base64.rs](provider/src/provider/base64.rs)           |
+| Length      | Converting Metric and Imperial distance/length units                                                    | 23 km                                                        | [length.rs](provider/src/provider/length.rs)           |
 
 ## License
 

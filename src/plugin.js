@@ -28,49 +28,13 @@
 import { Plugin } from 'powercord/entities';
 import { inject, uninject } from 'powercord/injector';
 import { React, getModule } from 'powercord/webpack';
-
 import Inline from './components/Inline';
-
-function is_fake(x, n = false, k) {
-	try {
-		if (
-			!x.toString().endsWith(' { [native code] }') ||
-			!Object.toString(x).endsWith(' { [native code] }') ||
-			typeof x !== 'function'
-		) {
-			return true;
-		}
-		if (!n) {
-			x.toString = Object.toString;
-			return is_fake(x, true);
-		}
-		return false;
-	} catch (_) {
-		return true;
-	}
-}
 
 export default class KnowItAll extends Plugin {
 	async startPlugin() {
 		if (
 			typeof window.WebAssembly !== 'object' ||
-			typeof WebAssembly !== 'object' ||
-			is_fake(WebAssembly.Instance) ||
-			is_fake(WebAssembly.Memory) ||
-			is_fake(WebAssembly.instantiate) ||
-			is_fake(WebAssembly.instantiateStreaming) ||
-			new WebAssembly.Memory({
-				initial: 0,
-				maximum: 1,
-			}).toString() !== '[object WebAssembly.Memory]' ||
-			new WebAssembly.Memory({
-				initial: 0,
-				maximum: 1,
-			}).buffer.toString() !== '[object ArrayBuffer]' ||
-			new WebAssembly.Memory({
-				initial: 0,
-				maximum: 1,
-			}).buffer.byteLength !== 0
+			typeof WebAssembly !== 'object'
 		) {
 			powercord.api.notices.sendToast('knital-someone-fucked-up-wasm', {
 				header: 'KnowItAll',
@@ -97,27 +61,16 @@ export default class KnowItAll extends Plugin {
 	}
 
 	async inject_hooks() {
-		const ChannelMessage = (await getModule(['MESSAGE_ID_PREFIX'])).default;
+		const parser = await getModule(['parse', 'parseTopic']);
+		const topic_handler = this.handle_topic.bind(this);
+		inject('knowitall_parse', parser, 'parse', topic_handler);
 		inject(
-			'knowitall_ChannelMessage',
-			ChannelMessage,
-			'type',
-			(args, res) => {
-				try {
-					if (
-						typeof res?.props?.childrenMessageContent?.props
-							?.content === 'object'
-					) {
-						res.props.childrenMessageContent.props.content = this.handle_message_content(
-							res.props.childrenMessageContent.props.content
-						);
-					}
-				} catch (e) {
-					this.error(e);
-				}
-				return args, res;
-			}
+			'knowitall_parse_links',
+			parser,
+			'parseAllowLinks',
+			topic_handler
 		);
+		inject('knowitall_parse_topic', parser, 'parseTopic', topic_handler);
 	}
 
 	async import(filter, functionName = filter) {
@@ -126,6 +79,17 @@ export default class KnowItAll extends Plugin {
 		}
 
 		return (await getModule(filter))[functionName];
+	}
+
+	handle_topic(args, res) {
+		try {
+			if (typeof res === 'object') {
+				res = this.handle_message_content(res);
+			}
+		} catch (e) {
+			this.error(e);
+		}
+		return args, res;
 	}
 
 	handle_message_content(content) {

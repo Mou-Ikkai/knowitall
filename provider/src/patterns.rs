@@ -52,10 +52,20 @@ lazy_regex!(
 
 lazy_regex!(
 	RGB_HEX,
-	r#"(#(?P<r>[[:xdigit:]]{2})(?P<g>[[:xdigit:]]{2})(?P<b>[[:xdigit:]]{2}))"#
+	r#"(#(?P<r>[[:xdigit:]]{2})(?P<g>[[:xdigit:]]{2})(?P<b>[[:xdigit:]]{2})(?P<a>[[:xdigit:]]{2})?)"#
+);
+
+lazy_regex!(
+	LENGTH,
+	r#"\b((?P<value>[\d.]+)\s*((?P<imperial>inch|in|feet|ft|yard|yd|mile|mi)|(?P<metric_prefix>kilo|k|c|centi)?(?P<metric>meter|m))(es|s)?)\b"#
 );
 
 lazy_regex!(
 	TEMPERATURE,
 	r#"[+-]?(?P<value>[\d.]+)[\s°]*(?P<unit>k|f|c|kelvin|fahrenheit|celsius|celcius)\b"#
+);
+
+lazy_regex!(
+	BASE64,
+	r#"((?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=))"#
 );

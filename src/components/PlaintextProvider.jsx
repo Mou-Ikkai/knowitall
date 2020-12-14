@@ -1,7 +1,7 @@
 /*
- * File: color.rs
+ * File: PlaintextProvider.jsx
  * Project: knowitall
- * Created Date: Tuesday, December 8th 2020, 7:41:20 am
+ * Created Date: Monday, December 14th 2020, 10:32:06 am
  * Author: aspen
  * -----
  * Copyright (c) 2020 aspen
@@ -25,40 +25,12 @@
  * 3.  This notice may not be removed or altered from any source distribution.
  */
 
-use crate::{
-	patterns::RGB_HEX,
-	provider::{InfoSegment, Provider, Tooltip},
-};
+import { React } from 'powercord/webpack';
 
-pub struct ColorProvider;
+export default class PlaintextProvider extends React.Component {
+	render() {
+		const { text } = this.props;
 
-impl Provider for ColorProvider {
-	fn name(&self) -> &'static str {
-		"RGB Color"
-	}
-
-	fn parse_message(&self, src: &str) -> Vec<InfoSegment> {
-		RGB_HEX
-			.captures_iter(src)
-			.filter_map(|capture| -> Option<InfoSegment> {
-				let segment = capture.get(0)?;
-				let (r, g, b, a) = (
-					u8::from_str_radix(capture.name("r")?.as_str(), 16).ok()?,
-					u8::from_str_radix(capture.name("g")?.as_str(), 16).ok()?,
-					u8::from_str_radix(capture.name("b")?.as_str(), 16).ok()?,
-					capture
-						.name("a")
-						.and_then(|a| u8::from_str_radix(a.as_str(), 16).ok())
-						.unwrap_or(u8::MAX),
-				);
-
-				InfoSegment {
-					start: segment.start(),
-					end: segment.end(),
-					info: Tooltip::Color { r, g, b, a },
-				}
-				.into()
-			})
-			.collect()
+		return <div>{text}</div>;
 	}
 }

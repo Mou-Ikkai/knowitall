@@ -1,7 +1,7 @@
 /*
- * File: color.rs
+ * File: base64.rs
  * Project: knowitall
- * Created Date: Tuesday, December 8th 2020, 7:41:20 am
+ * Created Date: Monday, December 14th 2020, 10:17:39 am
  * Author: aspen
  * -----
  * Copyright (c) 2020 aspen
@@ -26,36 +26,60 @@
  */
 
 use crate::{
-	patterns::RGB_HEX,
+	patterns::BASE64,
 	provider::{InfoSegment, Provider, Tooltip},
 };
+use ::base64 as b64;
 
-pub struct ColorProvider;
+const MAX_DISPLAY_LEN: usize = 2000;
+// 2k 4-byte unicode characters
+const MAX_DECODE_LEN: usize = 8000;
 
-impl Provider for ColorProvider {
+pub struct Base64Provider;
+
+impl Provider for Base64Provider {
 	fn name(&self) -> &'static str {
-		"RGB Color"
+		"Base64"
 	}
 
 	fn parse_message(&self, src: &str) -> Vec<InfoSegment> {
-		RGB_HEX
+		BASE64
 			.captures_iter(src)
 			.filter_map(|capture| -> Option<InfoSegment> {
 				let segment = capture.get(0)?;
-				let (r, g, b, a) = (
-					u8::from_str_radix(capture.name("r")?.as_str(), 16).ok()?,
-					u8::from_str_radix(capture.name("g")?.as_str(), 16).ok()?,
-					u8::from_str_radix(capture.name("b")?.as_str(), 16).ok()?,
-					capture
-						.name("a")
-						.and_then(|a| u8::from_str_radix(a.as_str(), 16).ok())
-						.unwrap_or(u8::MAX),
-				);
+				let decoded = b64::decode(segment.as_str()).ok()?;
+				let len = decoded.len();
+
+				if len > MAX_DECODE_LEN {
+					return None;
+				}
+
+				let text = match String::from_utf8(decoded) {
+					Ok(o) => o,
+					Err(e) => {
+						let valid_up_to = e.utf8_error().valid_up_to();
+						if valid_up_to >= len.saturating_sub(4) {
+							let mut valid_utf8 = e.into_bytes();
+							valid_utf8.truncate(valid_up_to);
+							if valid_utf8.len() > 0 {
+								unsafe { String::from_utf8_unchecked(valid_utf8) }
+							} else {
+								return None;
+							}
+						} else {
+							return None;
+						}
+					}
+				};
+
+				if text.len() > MAX_DISPLAY_LEN {
+					return None;
+				}
 
 				InfoSegment {
 					start: segment.start(),
 					end: segment.end(),
-					info: Tooltip::Color { r, g, b, a },
+					info: Tooltip::Base64 { text },
 				}
 				.into()
 			})

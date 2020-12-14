@@ -1,7 +1,7 @@
 /*
- * File: color.rs
+ * File: length.rs
  * Project: knowitall
- * Created Date: Tuesday, December 8th 2020, 7:41:20 am
+ * Created Date: Thursday, December 10th 2020, 3:31:42 pm
  * Author: aspen
  * -----
  * Copyright (c) 2020 aspen
@@ -26,36 +26,51 @@
  */
 
 use crate::{
-	patterns::RGB_HEX,
+	patterns::LENGTH,
 	provider::{InfoSegment, Provider, Tooltip},
 };
+use measurements::Length;
 
-pub struct ColorProvider;
+pub struct LengthProvider;
 
-impl Provider for ColorProvider {
+impl Provider for LengthProvider {
 	fn name(&self) -> &'static str {
-		"RGB Color"
+		"Length"
 	}
 
 	fn parse_message(&self, src: &str) -> Vec<InfoSegment> {
-		RGB_HEX
+		LENGTH
 			.captures_iter(src)
 			.filter_map(|capture| -> Option<InfoSegment> {
 				let segment = capture.get(0)?;
-				let (r, g, b, a) = (
-					u8::from_str_radix(capture.name("r")?.as_str(), 16).ok()?,
-					u8::from_str_radix(capture.name("g")?.as_str(), 16).ok()?,
-					u8::from_str_radix(capture.name("b")?.as_str(), 16).ok()?,
-					capture
-						.name("a")
-						.and_then(|a| u8::from_str_radix(a.as_str(), 16).ok())
-						.unwrap_or(u8::MAX),
-				);
+
+				let value = lexical::parse::<f64, _>(capture.name("value")?.as_str()).ok()?;
+				let measurement = if capture.name("metric").is_some() {
+					match capture.name("metric_prefix") {
+						Some(s) => match s.as_str().to_lowercase().as_str() {
+							"k" | "kilo" => Length::from_kilometers(value),
+							"c" | "centi" => Length::from_centimetres(value),
+							_ => return None,
+						},
+						None => Length::from_meters(value),
+					}
+				} else if let Some(imperial_unit) = capture.name("imperial") {
+					match imperial_unit.as_str().to_lowercase().as_str() {
+						"feet" | "ft" => Length::from_feet(value),
+						"inch" | "in" => Length::from_inches(value),
+						"yard" | "yd" => Length::from_yards(value),
+						_ => return None,
+					}
+				} else {
+					return None;
+				};
 
 				InfoSegment {
 					start: segment.start(),
 					end: segment.end(),
-					info: Tooltip::Color { r, g, b, a },
+					info: Tooltip::Length {
+						meters: measurement.as_centimetres(),
+					},
 				}
 				.into()
 			})
