@@ -15,7 +15,7 @@ crate-type = ["cdylib", "rlib"]
 wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
 console_error_panic_hook = "0.1"
 # Message parsing
-regex = "1.4"
+regex = "1.5"
 bytesize = "1.0"
 lexical = "5.2"
 measurements = "0.10"
