@@ -36,7 +36,7 @@
 		"@rollup/plugin-node-resolve": "^11.0.1",
 		"@wasm-tool/rollup-plugin-rust": "^1.0.5",
 		"commitlint-config-gitmoji": "^1.0.1",
-		"eslint": "^7.16.0",
+		"eslint": "^7.28.0",
 		"eslint-plugin-jsx-a11y": "^6.4.1",
 		"eslint-plugin-node": "^11.1.0",
 		"eslint-plugin-react": "^7.21.5",
